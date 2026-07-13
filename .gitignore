@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Frontend
+frontend/node_modules/
+
+# Outputs
+outputs/
+uploads/
+reports/
+heatmaps/
+predictions/
+
+# Dataset
+datasets/
+
+# Models
+*.pth
+*.pt
+*.ckpt
+
+# Jupyter
+.ipynb_checkpoints/
