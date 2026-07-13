@@ -5,7 +5,6 @@ from groq import Groq
 
 from backend.services.rag_service import RAGService
 
-
 load_dotenv()
 
 
@@ -17,9 +16,22 @@ class ChatbotService:
             api_key=os.getenv("GROQ_API_KEY")
         )
 
-        self.rag = RAGService()
+        # Lazy loading (Do NOT load RAG when the server starts)
+        self.rag = None
+
+    def load_rag(self):
+
+        if self.rag is None:
+            print("=" * 60)
+            print("Loading Medical Knowledge Base...")
+            print("=" * 60)
+
+            self.rag = RAGService()
 
     def ask(self, question):
+
+        # Load RAG only when the chatbot is actually used
+        self.load_rag()
 
         # Retrieve relevant chunks
         results = self.rag.search(question)
@@ -127,7 +139,7 @@ Use friendly, practical and easy-to-understand language.
 
 
 # ====================================================
-# Create ONE chatbot instance for the whole application
+# Create ONE chatbot instance
 # ====================================================
 
 chatbot = ChatbotService()
