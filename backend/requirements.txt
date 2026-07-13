@@ -18,3 +18,4 @@ pypdf
 PyMuPDF
 transformers
 huggingface-hub
+langchain-text-splitters
