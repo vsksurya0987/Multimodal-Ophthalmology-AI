@@ -19,3 +19,4 @@ PyMuPDF
 transformers
 huggingface-hub
 langchain-text-splitters
+grad-cam
