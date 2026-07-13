@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import torch
 
 # =====================================================
@@ -82,7 +83,16 @@ EPOCHS = 5
 
 RANDOM_SEED = 42
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# =====================================================
+# DEVICE CONFIGURATION
+# =====================================================
+
+USE_CPU_ONLY = os.getenv("USE_CPU_ONLY", "true").lower() == "true"
+
+if USE_CPU_ONLY:
+    DEVICE = torch.device("cpu")
+else:
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # =====================================================
 # PATHS
