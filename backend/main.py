@@ -11,7 +11,6 @@ from backend.services.gradcam_service import GradCAMService
 from backend.services.report_service import ReportService
 from backend.services.lifestyle_service import LifestyleService
 
-
 app = FastAPI(
     title="Multimodal Ophthalmology AI",
     version="1.0.0"
@@ -23,23 +22,49 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=["*"],   # Change this back to your frontend URL later
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # =====================================================
-# SERVICES
+# LAZY LOAD SERVICES
 # =====================================================
 
-vision_service = VisionService()
-gradcam_service = GradCAMService()
-report_service = ReportService()
-lifestyle_service = LifestyleService()
+vision_service = None
+gradcam_service = None
+report_service = None
+lifestyle_service = None
+
+
+def get_vision_service():
+    global vision_service
+    if vision_service is None:
+        vision_service = VisionService()
+    return vision_service
+
+
+def get_gradcam_service():
+    global gradcam_service
+    if gradcam_service is None:
+        gradcam_service = GradCAMService()
+    return gradcam_service
+
+
+def get_report_service():
+    global report_service
+    if report_service is None:
+        report_service = ReportService()
+    return report_service
+
+
+def get_lifestyle_service():
+    global lifestyle_service
+    if lifestyle_service is None:
+        lifestyle_service = LifestyleService()
+    return lifestyle_service
+
 
 # =====================================================
 # FOLDERS
@@ -57,10 +82,10 @@ OUTPUT_FOLDER.mkdir(exist_ok=True)
 
 @app.get("/")
 def home():
-
     return {
         "message": "Multimodal Ophthalmology AI Backend Running"
     }
+
 
 # =====================================================
 # PREDICT
@@ -74,9 +99,10 @@ async def predict(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    result = vision_service.analyze_image(str(file_path))
+    result = get_vision_service().analyze_image(str(file_path))
 
     return result
+
 
 # =====================================================
 # CHATBOT
@@ -97,6 +123,7 @@ def chat(request: ChatRequest):
         "answer": answer
     }
 
+
 # =====================================================
 # LIFESTYLE
 # =====================================================
@@ -104,7 +131,8 @@ def chat(request: ChatRequest):
 @app.get("/lifestyle/{disease}")
 def get_lifestyle(disease: str):
 
-    return lifestyle_service.get_recommendations(disease)
+    return get_lifestyle_service().get_recommendations(disease)
+
 
 # =====================================================
 # GRAD-CAM
@@ -120,7 +148,7 @@ async def generate_gradcam(file: UploadFile = File(...)):
 
     output_path = OUTPUT_FOLDER / f"gradcam_{file.filename}"
 
-    gradcam_service.generate(
+    get_gradcam_service().generate(
         str(file_path),
         str(output_path)
     )
@@ -130,6 +158,7 @@ async def generate_gradcam(file: UploadFile = File(...)):
         media_type="image/jpeg",
         filename=output_path.name
     )
+
 
 # =====================================================
 # PDF REPORT
@@ -143,7 +172,7 @@ async def generate_report(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    result = report_service.generate_report(
+    result = get_report_service().generate_report(
         str(file_path)
     )
 
