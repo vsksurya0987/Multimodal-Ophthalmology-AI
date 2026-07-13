@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-    baseURL: "https://multimodal-ophthalmology-ai.onrender.com"
+    baseURL: "https://multimodal-ophthalmology-ai.onrender.com",
+    timeout: 120000
 });
 
 export const predictDisease = async (file) => {
